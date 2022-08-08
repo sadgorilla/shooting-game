@@ -37,14 +37,14 @@ class Lucian:
 	def right_move(self):
 		self.speed = [4, 0]
 
-	def shoot(self, angle):
-		new_bullet = Bullet(self, angle)
+	def shoot(self, angle, speed):
+		new_bullet = Bullet(self, angle, speed)
 		return new_bullet
 
 	
 	
 class Bullet:
-	def __init__(self, lucian, angle):
+	def __init__(self, lucian, angle, speed):
 		surface = pg.Surface((12,6))
 		#surface.set_alpha(80)
 		surface.set_colorkey(light_green)
@@ -56,7 +56,7 @@ class Bullet:
 
 		self.surface = surface
 		self.rect = rect
-		self.speed = [14, 0]
+		self.speed = speed
 		self.state = True
 
 

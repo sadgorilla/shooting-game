@@ -1,7 +1,7 @@
 ### ---------------------------------------
 ### ------ SETUP
 
-import sys, random, pygame as pg
+import sys, random, math, pygame as pg
 import classes
 from pygame.locals import *
 
@@ -73,6 +73,25 @@ pg.time.set_timer(my_event, 2500)
 
 
 
+# get speed of bullet
+
+def get_speed(x_diff, y_diff):
+	# x_diff positive -- shoot right (positive speed)
+	# x_diff negative -- shoot left (negative speed)
+	
+	# y_diff positive -- shoot down (positive)
+	# y_diff negative -- shoot up (negative)
+	
+	diffs_squared = (x_diff**2) / (y_diff**2)
+	
+	y = math.sqrt(100 / (1 + diffs_squared))
+	
+	if y_diff < 0:
+		y = -y
+	
+	x = (x_diff / y_diff) * y
+	return [x,y]
+
 
 
 
@@ -133,16 +152,33 @@ while 1:
 				score = 0
 
 
-	print(time_since_shot)		
+				
 	click = pg.mouse.get_pressed()[0]
+	
 	if time_since_shot > 500 and  click:
 
-		new_bullet = lucian.shoot(0)
-
-		print(new_bullet.rect.right, new_bullet.rect.left)
+		mouse_pos = pg.mouse.get_pos()
+		lucian_pos = lucian.rect.midright
+		
+		print(f"mouse pos: {mouse_pos}")
+		print(f"lucian pos: {lucian_pos}")
+		
+		x_diff = mouse_pos[0] - lucian_pos[0]
+		y_diff = mouse_pos[1] - lucian_pos[1]
+		
+		print(x_diff, y_diff)
+		
+		
+		speed_vector = get_speed(x_diff, y_diff)
+		
+		
+		
+		new_bullet = lucian.shoot(0, speed_vector)
 
 		bullet_set.add(new_bullet)
 		time_since_shot = 0
+		
+		print(new_bullet.speed)
 
 
 				
