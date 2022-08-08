@@ -2,6 +2,7 @@
 ### ------ SETUP
 
 import sys, random, pygame as pg
+import classes
 from pygame.locals import *
 
 pg.init()
@@ -26,10 +27,6 @@ screen_rect = screen.get_rect()
 pg.display.set_caption("swag")
 
 score = 0
-
-time_since_shot = 0
-primed = False
-
 
 ### ---------------------------------------
 ### ------ TEXT
@@ -57,90 +54,7 @@ text_score_rect.centery = 15
 
 
 
-### ---------------------------------------
-### ------ CLASSES
-		
-class Lucian:
-	surface = pg.image.load("./images/lucian-40px.jpg")
-	rect = surface.get_rect()
-	speed = [4, 0]
-	alive = True
-
-	def up_move(self):
-		self.speed = [0, -4]
-
-	def down_move(self):
-	   	self.speed = [0, 4]
-
-	def left_move(self):
-		self.speed = [-4, 0]
-
-	def right_move(self):
-		self.speed = [4, 0]
-
-	def shoot(self, first):
-		new_bullet = Bullet(self)
-		bullet_set.add(new_bullet)
-		global primed, time_since_shot
-		if first == True:
-			time_since_shot = 0
-			primed = True
-		else:
-			primed = False
-		print("shoot")
-
-
-class Bullet:
-	def __init__(self, lucian):
-		surface = pg.Surface((12,6))
-		
-		rect = surface.get_rect()
-		rect.top = lucian.rect.center[1]
-		rect.left = lucian.rect.right
-
-		self.surface = surface
-		self.rect = rect
-		self.speed = [14, 0]
-		self.state = True
-
-
-class Mine:
-	def __init__(self):
-		surface = pg.Surface((20,20))
-		surface.fill(red)
-
-		rect = surface.get_rect()
-		rect.top = random.randint(10, screen_height-30)
-		rect.left = screen_width
-
-		self.surface = surface
-		self.rect = rect
-		self.speed = [-3, 0]
-		self.state = True
-
-	def spawn():
-		front_mine = Mine()
-		mine_set.add(front_mine)
-
-		back_mine = Mine()
-		back_mine.rect.left = screen_width + 180
-		back_mine.rect.top = front_mine.rect.top
-		mine_set.add(back_mine)
-
-
-class Explosion:
-	def __init__(self, mine):
-		surface = pg.Surface((50,50))
-		surface.fill(light_green)
-
-		rect = surface.get_rect()
-		rect.center = mine.rect.center
-
-		self.surface = surface
-		self.rect = rect
-		self.center = (25,25)
-		self.radius = 25
-
+#
 
 def check_contact(bullet_obj, mine_obj):
 	bullet = bullet_obj.rect
@@ -160,45 +74,39 @@ pg.time.set_timer(my_event, 2500)
 
 
 
-lucian = Lucian()
+
+
+
+
+lucian = classes.Lucian()
 
 bullet_set = set()
 mine_set = set()
 explosion_set = set()
 
 
-
-
-
-time_between_shots = 0
-
-
-
-
+time_since_shot = 0
+score = 0
 
 ### ----------------
 ### GAME LOOP 
 
-run = True
-while run:
+while 1:
+	
+	##	clock/timed events
+	
 	clock.tick(60)
 	time_since_shot += clock.get_time()
 
-	print(primed, time_since_shot)
-
-	if primed is True and time_since_shot > 175:
-		lucian.shoot(False)
-
-
-
-	text_score = font_smol.render(f"score: {score}", True, black)
+		
+	##	input events
 
 	for event in pg.event.get():
 		if event.type == pg.QUIT:
 			sys.exit()
 
 		if event.type == custom and lucian.alive:
-			Mine.spawn()
+			mine_set.update(classes.Mine.spawn())
 
 		if event.type == pg.KEYDOWN:
 			key = event.key
@@ -221,48 +129,87 @@ while run:
 				score = 0
 
 			elif key == K_SPACE and time_since_shot > 600:
-				print("hi")
-				lucian.shoot(True)
+				new_bullet = lucian.shoot()
+				bullet_set.add(new_bullet)
 
 
+				
+				
 
-
+	### update image
+	
+	## move objects
+	
 	lucian.rect = lucian.rect.move(lucian.speed)
 
+		
+	for bullet in bullet_set:
+		bullet.rect = bullet.rect.move(bullet.speed)
 
+	for mine in mine_set:
+		mine.rect = mine.rect.move(mine.speed)
+	
+	
+	## check collisions
+	
+	# bullet-mine collisions
+	# 1. see if bullet-mine collide in new image
+	# 2. if yes, set state to FALSE
+	#			 and create explosion
+	
+	for bullet in bullet_set:
+		for mine in mine_set:
+			
+			if bullet.state is False:
+				break
+			
+			contact = check_contact(bullet, mine)
+			if contact is True:
+				bullet.state = False
+				mine.state = False
+				score += 1
+				
+				new_explosion = classes.Explosion(mine)
+				explosion_set.add(new_explosion)
+	
+	
+	
+	# lucian-wall collision
+	# 1. see if lucian-wall collide
+	# 2. if yes, set alive to FALSE
+		
+	if lucian.rect.right > screen_width or lucian.rect.left < 0 or \
+		lucian.rect.bottom > screen_height or lucian.rect.top < 0:
+		
+		lucian.alive = False
+		bullet_set.clear()
+		mine_set.clear()
+		explosion_set.clear()
+	
+	
+				
+	# other-wall collisions
+	# 1. see if bullet or mine collides with wall
+	# 2. if yes, set state to FALSE
+		
 	for bullet in bullet_set:
 		if bullet.rect.left > screen_width:
 			bullet.state = False
-			continue
-		bullet.rect = bullet.rect.move(bullet.speed)
-
-	bullet_set = {bullet for bullet in bullet_set if bullet.state is True}
-
-
+	
 	for mine in mine_set:
 		if mine.rect.right < 0:
 			mine.state = False
-			continue
-		mine.rect = mine.rect.move(mine.speed)
-
-	mine_set = {mine for mine in mine_set if mine.state is True}
-
-
-	# MINES AND BULLETS HAVE BEEN MOVED, THOSE OFFSCREEN REMOVED
-
-	for bullet in bullet_set:
-		for mine in mine_set:
-			contact = check_contact(bullet, mine)
-			# print(contact)
-			if contact:
-				bullet.state = False
-				mine.state = False
-				print(mine.rect.center)
-				explosion_set.add(Explosion(mine))
-				score += 1
+	
+	
+		
+	# remove all FALSE bullets and mines from sets	
+		
 	bullet_set = {bullet for bullet in bullet_set if bullet.state is True}
 	mine_set = {mine for mine in mine_set if mine.state is True}
+	
+	
 
+	## update explosion image	
 
 	for explosion in explosion_set:
 		explosion.surface.fill(light_green)
@@ -273,18 +220,28 @@ while run:
 
 
 
-	## LUCIAN DEATH
-
-	if lucian.rect.right > screen_width or lucian.rect.left < 0 or \
-		lucian.rect.bottom > screen_height or lucian.rect.top < 0:
-		lucian.alive = False
-		bullet_set.clear()
-		mine_set.clear()
-		explosion_set.clear()
 
 
-	## PRINTING IMAGES TO SCREEN
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 
+	### print image
+
+	text_score = font_smol.render(f"score: {score}", True, black)
+
+	
 	if lucian.alive:
 		screen.fill(light_green)
 
@@ -300,10 +257,22 @@ while run:
 		screen.blit(lucian.surface, lucian.rect)
 
 		
-	else:
+	else: # game over screen
 		screen.fill(gray)
+		
 		screen.blit(text_death, text_death_pos)
 		screen.blit(text_respawn, text_respawn_pos)
 
-	screen.blit(text_score, text_score_rect)
+		
+		
+	screen.blit(font_smol.render(f"score: {score}", True, black), text_score_rect)
+	
 	pg.display.flip()
+	
+	print(f"mine list: {mine_set}")
+	print(f"bullet list: {bullet_set}")
+	print(f"explosion list: {explosion_set}")
+
+	
+	
+print("loop ended, end of program reached")
