@@ -93,6 +93,11 @@ score = 0
 
 while 1:
 	
+	## read mouse
+	
+	#print(pg.mouse.get_pos())
+	#print(pg.mouse.get_pressed())
+	
 	##	clock/timed events
 	
 	clock.tick(60)
@@ -112,13 +117,13 @@ while 1:
 			if key == K_ESCAPE:
 				sys.exit()
 
-			elif key == K_UP:
+			elif key == K_w:
 				lucian.up_move()
-			elif key == K_DOWN:
+			elif key == K_s:
 				lucian.down_move()
-			elif key == K_RIGHT:
+			elif key == K_d:
 				lucian.right_move()
-			elif key == K_LEFT:
+			elif key == K_a:
 				lucian.left_move()
 
 			elif key == K_r and not lucian.alive:
@@ -127,13 +132,17 @@ while 1:
 				lucian.speed = [4,0]
 				score = 0
 
-			elif key == K_SPACE and time_since_shot > 500:
-				new_bullet = lucian.shoot(90)
-				
-				print(new_bullet.rect.right, new_bullet.rect.left)
-				
-				bullet_set.add(new_bullet)
-				time_since_shot = 0
+
+	print(time_since_shot)		
+	click = pg.mouse.get_pressed()[0]
+	if time_since_shot > 500 and  click:
+
+		new_bullet = lucian.shoot(0)
+
+		print(new_bullet.rect.right, new_bullet.rect.left)
+
+		bullet_set.add(new_bullet)
+		time_since_shot = 0
 
 
 				
