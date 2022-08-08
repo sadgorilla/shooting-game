@@ -37,15 +37,18 @@ class Lucian:
 	def right_move(self):
 		self.speed = [4, 0]
 
-	def shoot(self):
-		new_bullet = Bullet(self)
+	def shoot(self, angle):
+		new_bullet = Bullet(self, angle)
 		return new_bullet
 
 	
 	
 class Bullet:
-	def __init__(self, lucian):
+	def __init__(self, lucian, angle):
 		surface = pg.Surface((12,6))
+		#surface.set_alpha(80)
+		surface.set_colorkey(light_green)
+		surface = pg.transform.rotate(surface, angle)
 		
 		rect = surface.get_rect()
 		rect.top = lucian.rect.center[1]

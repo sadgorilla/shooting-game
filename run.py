@@ -97,7 +97,6 @@ while 1:
 	
 	clock.tick(60)
 	time_since_shot += clock.get_time()
-
 		
 	##	input events
 
@@ -128,9 +127,13 @@ while 1:
 				lucian.speed = [4,0]
 				score = 0
 
-			elif key == K_SPACE and time_since_shot > 600:
-				new_bullet = lucian.shoot()
+			elif key == K_SPACE and time_since_shot > 500:
+				new_bullet = lucian.shoot(90)
+				
+				print(new_bullet.rect.right, new_bullet.rect.left)
+				
 				bullet_set.add(new_bullet)
+				time_since_shot = 0
 
 
 				
@@ -201,9 +204,7 @@ while 1:
 			mine.state = False
 	
 	
-		
-	# remove all FALSE bullets and mines from sets	
-		
+	# remove all FALSE bullets and mines from sets
 	bullet_set = {bullet for bullet in bullet_set if bullet.state is True}
 	mine_set = {mine for mine in mine_set if mine.state is True}
 	
@@ -222,19 +223,7 @@ while 1:
 
 
 
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
+	
 		
 
 	### print image
@@ -269,9 +258,9 @@ while 1:
 	
 	pg.display.flip()
 	
-	print(f"mine list: {mine_set}")
-	print(f"bullet list: {bullet_set}")
-	print(f"explosion list: {explosion_set}")
+	#print(f"mine list: {mine_set}")
+	#print(f"bullet list: {bullet_set}")
+	#print(f"explosion list: {explosion_set}")
 
 	
 	
