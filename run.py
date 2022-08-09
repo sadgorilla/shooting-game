@@ -90,6 +90,13 @@ def get_speed(x_diff, y_diff):
 		y = -y
 	
 	x = (x_diff / y_diff) * y
+	
+	print(f"unrounded speeds: {(x, y)}")
+	
+	x = round(x)
+	y = round(y)
+	
+	print(f"rounded speeds: {(x,y)}")
 	return [x,y]
 
 
@@ -112,6 +119,8 @@ score = 0
 
 while 1:
 	
+	
+	lucian.speed = [0,0]
 	## read mouse
 	
 	#print(pg.mouse.get_pos())
@@ -129,7 +138,8 @@ while 1:
 			sys.exit()
 
 		if event.type == custom and lucian.alive:
-			mine_set.update(classes.Mine.spawn())
+			hi = 5
+			#mine_set.update(classes.Mine.spawn())
 
 		if event.type == pg.KEYDOWN:
 			key = event.key
@@ -177,10 +187,6 @@ while 1:
 
 		bullet_set.add(new_bullet)
 		time_since_shot = 0
-		
-		print(new_bullet.speed)
-
-
 				
 				
 
@@ -193,6 +199,7 @@ while 1:
 		
 	for bullet in bullet_set:
 		bullet.rect = bullet.rect.move(bullet.speed)
+
 
 	for mine in mine_set:
 		mine.rect = mine.rect.move(mine.speed)
