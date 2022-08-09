@@ -84,13 +84,17 @@ def get_speed(x_diff, y_diff):
 	
 	diffs_squared = (x_diff**2) / (y_diff**2)
 	
-	y = math.sqrt(100 / (1 + diffs_squared))
+	y = math.sqrt(200 / (1 + diffs_squared))
 	
 	if y_diff < 0:
 		y = -y
 	
 	x = (x_diff / y_diff) * y
-	return [x,y]
+	
+	print(f"unrounded speeds: {(x, y)}")
+	print(f"rounded speeds: {(round(x), round(y))}")
+	
+	return [round(x),round(y)]
 
 
 
@@ -166,8 +170,6 @@ while 1:
 		x_diff = mouse_pos[0] - lucian_pos[0]
 		y_diff = mouse_pos[1] - lucian_pos[1]
 		
-		print(x_diff, y_diff)
-		
 		
 		speed_vector = get_speed(x_diff, y_diff)
 		
@@ -177,8 +179,6 @@ while 1:
 
 		bullet_set.add(new_bullet)
 		time_since_shot = 0
-		
-		print(new_bullet.speed)
 
 
 				
